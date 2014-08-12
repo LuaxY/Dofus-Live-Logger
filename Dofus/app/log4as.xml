@@ -1,0 +1,5 @@
+<logging>
+    <targets>
+        <target module="com.ankamagames.jerakine.logger.targets.SOSTarget"/>
+    </targets>
+</logging>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Dofus Live Logger</title>
+    <style>
+
+    body {
+        color: #3E3720;
+        background-color: #C9BF9D;
+        font-family: Verdana;
+    }
+
+    h1, h5{
+        text-align: center;
+        font-family: Verdana;
+    }
+
+    h2, h3, h4, h5{
+        padding: 5px;
+        margin: 5px;
+        font-family: Verdana;
+    }
+
+    div{
+        margin: 5px;
+        padding: 5px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+        background-color: #DEDABE;
+    }
+
+    pre {
+        padding: 0;
+        margin: 0;
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -pre-wrap;
+        white-space: -o-pre-wrap;
+        word-wrap: break-word;
+    }
+
+    #log ul {
+        border: #666666 1px solid;
+        padding: 0;
+        margin:0;
+        height: 500px;
+        overflow:scroll;
+    }
+
+    #log li {
+        font-family: Courier New;
+        font-size: 10pt;
+        list-style-type : none;
+    }
+
+    .trace   {background-color: #c5f4c5}
+    .debug   {background-color: #aad4ff}
+    .info    {background-color: #ffff95}
+    .warning {background-color: #ff9933}
+    .error   {background-color: #ff1313}
+    .fatal   {background-color: #d90303}
+
+    </style>
+</head>
+<body>
+    <h1>Dofus Live Logger</h1>
+
+    <div id="log">
+        <h2>Log</h2>
+        <ul id="output">
+        </ul>
+    </div>
+
+    <div id="options">
+        <h2>Options</h2>
+        <ul>
+            <li>Serveur : <input type="text" id="host" value="ws://127.0.0.1:4242" /> <button id="btnConnexion">Connexion</button> <button id="btnClear">Clear</button></li>
+            <li>Autoscroll : <input type="checkbox" id="autoscroll" checked="checked" /></li>
+            <li>Filtres :</li>
+        </ul>
+    </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript">
+
+    var isConnected = false;
+    var isAutoscrollEnabled = true;
+    var websocket;
+
+    $("#btnConnexion").click(function(){
+        if(!isConnected)
+        {
+            $(this).html("Déconnexion");
+            $("#host").prop("disabled", true);
+            connect($("#host").val());
+            isConnected = true;
+        }
+        else
+        {
+            $(this).html("Connexion");
+            $("#host").prop("disabled", false);
+            websocket.close();
+            isConnected = false;
+        }
+    });
+
+    $("#btnClear").click(function(){
+        $("#output").html("");
+    });
+
+    $("#autoscroll").change(function(){
+        if($(this).is(":checked"))
+        {
+            isAutoscrollEnabled = true;
+            document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight;
+        }
+        else
+            isAutoscrollEnabled = false;
+    });
+
+    function connect(host)
+    {
+        websocket = new WebSocket(host);
+        websocket.onopen = function(evt) { onOpen(evt) };
+        websocket.onclose = function(evt) { onClose(evt) };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror = function(evt) { onError(evt) };
+    }
+
+    function onOpen(evt)
+    {
+        log('<li class="info">[WebSocket] connected</li>');
+    }
+
+    function onClose(evt)
+    {
+        log('<li class="info">[WebSocket] disconnected</li>');
+        $("#btnConnexion").html("Connexion");
+        $("#host").prop("disabled", false);
+        websocket.close();
+        isConnected = false;
+    }
+
+    function onMessage(evt)
+    {
+        log(evt.data);
+    }
+
+    function onError(evt)
+    {
+        log('<li class="error">[WebSocket] ' + evt.data + '</li>');
+    }
+
+    function send(message)
+    {
+        websocket.send(message);
+    }
+
+    function log(message)
+    {
+        $("#output").append("<pre>" + message + "</pre>");
+
+        if(isAutoscrollEnabled)
+            document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight;
+    }
+
+    </script>
+</body>
+</html>

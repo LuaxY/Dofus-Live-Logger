@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/dofus_off.png</file>
+        <file>images/dofus_on.png</file>
+        <file>images/logger_off.png</file>
+        <file>images/logger_on.png</file>
+        <file>images/icon.png</file>
+    </qresource>
+</RCC>
